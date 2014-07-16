@@ -69,7 +69,18 @@ switch ($action) {
                     $response['reason'] = 'No data found.';
                 } else {                    
                     while ($row = mysql_fetch_assoc($result)) {
-                        $response['data'][] = $row;                        
+                        $response['data'][$row['id']] = $row;   
+                        $selectMobilesSql = "SELECT * FROM sb_mobiles where sb_mobiles.user_id=".$row['id'];
+                        $mobilesResult = mysql_query($selectMobilesSql);
+                        while ($mobileRow = mysql_fetch_assoc($mobilesResult)) {
+                            $response['data'][$row['id']]['mobiles'][] = $mobileRow;
+                        }
+                        $selectLicenceSql = "SELECT * FROM sb_user_licensing where sb_user_licensing.user_id=".$row['id'];
+                        $licenseResult = mysql_query($selectLicenceSql);
+                        while ($licenseRow = mysql_fetch_assoc($licenseResult)) {
+                            $response['data'][$row['id']]['license'] = $licenseRow;
+                        }
+                        //echo '<pre>';print_r($mobilesResult);exit;
                     }
                     //echo '<pre>';print_r($response['data']);exit;
                 }
@@ -109,6 +120,8 @@ switch ($action) {
     case 'addUser':
                 echo '<pre>';
                 print_r($_REQUEST);
+                $ClientData = file_get_contents('php://input');
+                print_r($ClientData);
                 exit;
         break;
     default:
