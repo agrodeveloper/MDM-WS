@@ -80,6 +80,11 @@ switch ($action) {
                         while ($licenseRow = mysql_fetch_assoc($licenseResult)) {
                             $response['data'][$row['id']]['license'] = $licenseRow;
                         }
+                        $selectLoggedSql = "SELECT * FROM sb_user_session where sb_user_session.user_id=".$row['id']." AND type= 0";
+                        $loggedResult = mysql_query($selectLoggedSql);
+                        while ($loggedRow = mysql_fetch_assoc($loggedResult)) {
+                            $response['data'][$row['id']]['log'][] = $loggedRow;
+                        }
                         //echo '<pre>';print_r($mobilesResult);exit;
                     }
                     //echo '<pre>';print_r($response['data']);exit;
@@ -120,8 +125,13 @@ switch ($action) {
     case 'addUser':
                 echo '<pre>';
                 print_r($_REQUEST);
-                $ClientData = file_get_contents('php://input');
-                print_r($ClientData);
+                //$ClientData = file_get_contents('php://input');
+                //print_r($ClientData);
+                //print_r($_REQUEST['firstname']);
+                $insertUser  = mysql_query('INSERT INTO `sb_users`(`username`, `password`, `email`, `user_role`, `user_status`, `user_deleted`, `session_terminated`, `created_at`) VALUES ("'.$_REQUEST['email'].'","'.$_REQUEST['password'].'","'.$_REQUEST['email'].'","1","1","0","0",NOW())');
+                $user_id = mysql_insert_id();
+                $insertUserInfoSql = mysql_query('INSERT INTO `sb_userinfo`(`user_id`, `first_name`, `last_name`, `mobile_no`, `address`, `city`, `state`, `zip`, `created_at`, `modified_at`, `created_by`) VALUES ("'.$user_id.'","'.$_REQUEST['firstname'].'","'.$_REQUEST['lastname'].'","'.$_REQUEST['phone'].'","'.$_REQUEST['address'].'","'.$_REQUEST['city'].'","'.$_REQUEST['state'].'","'.$_REQUEST['zip'].'",NOW(),NOW(),"1")');
+                echo $user_id;
                 exit;
         break;
     default:
